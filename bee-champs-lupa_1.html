@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Bee Champs — Natáčecí den</title>
+<style>
+  :root{
+    --bg:#0E0F12;
+    --bg-soft:#16181D;
+    --card:#1B1E24;
+    --card-hi:#22262E;
+    --line:#2C313A;
+    --line-soft:#242830;
+    --text:#EDEFF2;
+    --text-dim:#9AA0AC;
+    --text-faint:#636A76;
+    --amber:#F4B333;
+    --amber-deep:#D9971A;
+    --lime:#8BC34A;
+    --sky:#4FA8E0;
+    --violet:#9C7BD6;
+    --coral:#EC6A5E;
+    --done:#5BB85B;
+    --mono:'SF Mono',ui-monospace,'Roboto Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.45;
+    padding-bottom:96px;-webkit-font-smoothing:antialiased;
+  }
+
+  /* ---- Header ---- */
+  header{
+    position:sticky;top:0;z-index:50;background:rgba(14,15,18,.86);
+    backdrop-filter:blur(14px);border-bottom:1px solid var(--line-soft);
+    padding:calc(env(safe-area-inset-top) + 13px) 18px 11px;
+  }
+  .brandrow{display:flex;align-items:center;gap:9px}
+  .rec{width:9px;height:9px;border-radius:50%;background:var(--coral);box-shadow:0 0 0 0 rgba(236,106,94,.6);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(236,106,94,.5)}70%{box-shadow:0 0 0 7px rgba(236,106,94,0)}100%{box-shadow:0 0 0 0 rgba(236,106,94,0)}}
+  .brandrow h1{margin:0;font-size:13px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--text)}
+  .brandrow .clock{margin-left:auto;font-family:var(--mono);font-size:13px;color:var(--amber);font-weight:600;letter-spacing:.04em}
+  .progwrap{margin-top:11px}
+  .progbar{height:4px;background:var(--line);border-radius:99px;overflow:hidden}
+  .progfill{height:100%;width:0;background:linear-gradient(90deg,var(--amber-deep),var(--amber));transition:width .4s ease;border-radius:99px}
+  .progmeta{display:flex;justify-content:space-between;margin-top:7px;font-size:11px;color:var(--text-faint);font-family:var(--mono);letter-spacing:.02em}
+  .progmeta b{color:var(--text-dim)}
+
+  /* ---- Day tabs ---- */
+  .tabs{display:flex;gap:8px;padding:13px 16px 3px;position:sticky;background:var(--bg);z-index:40}
+  .tab{
+    flex:1;text-align:left;padding:10px 13px;border-radius:12px;
+    background:var(--card);border:1px solid var(--line-soft);cursor:pointer;transition:all .15s;
+  }
+  .tab .dn{font-size:13px;font-weight:700;color:var(--text-dim);letter-spacing:.03em}
+  .tab .dd{font-size:10px;font-weight:600;color:var(--text-faint);margin-top:2px;font-family:var(--mono)}
+  .tab.active{background:var(--card-hi);border-color:var(--amber-deep)}
+  .tab.active .dn{color:var(--amber)}
+  .tab.active .dd{color:var(--text-dim)}
+
+  main{padding:8px 16px 0}
+
+  /* ---- Day intro ---- */
+  .dayhero{padding:6px 2px 14px}
+  .dayhero .kick{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber-deep)}
+  .dayhero h2{margin:5px 0 0;font-size:21px;font-weight:800;letter-spacing:-.01em}
+  .dayhero p{margin:6px 0 0;font-size:13px;color:var(--text-dim);max-width:52ch}
+
+  /* ---- Timeline ---- */
+  .tl{position:relative;padding-left:0}
+  .slot{position:relative;margin-bottom:14px}
+  .slothead{display:flex;align-items:center;gap:11px;margin-bottom:9px}
+  .time{
+    font-family:var(--mono);font-size:12px;font-weight:700;color:var(--bg);
+    background:var(--amber);padding:3px 9px;border-radius:7px;letter-spacing:.02em;flex-shrink:0;
+  }
+  .slot.rest .time{background:var(--line);color:var(--text-dim)}
+  .slothead .lbl{font-size:12px;font-weight:600;color:var(--text-dim);letter-spacing:.02em}
+  .slothead .lite{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--text-faint)}
+
+  /* ---- Block ---- */
+  .block{background:var(--card);border:1px solid var(--line-soft);border-radius:15px;overflow:hidden;margin-bottom:2px}
+  .bhead{padding:13px 15px;display:flex;align-items:flex-start;gap:11px;cursor:pointer}
+  .rail{flex-shrink:0;width:3px;align-self:stretch;border-radius:99px;margin:1px 0}
+  .b1 .rail{background:var(--amber)} .b2 .rail{background:var(--lime)}
+  .b3 .rail{background:var(--violet)} .b4 .rail{background:var(--sky)}
+  .btitle{flex:1;min-width:0}
+  .btitle h3{margin:0;font-size:15px;font-weight:800;letter-spacing:-.01em}
+  .fmtrow{display:flex;gap:6px;align-items:center;margin-top:5px;flex-wrap:wrap}
+  .fmt{font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;letter-spacing:.03em}
+  .fmt.v{background:rgba(139,195,74,.15);color:var(--lime)}
+  .fmt.h{background:rgba(79,168,224,.15);color:var(--sky)}
+  .fmt.len{background:var(--line);color:var(--text-dim)}
+  .bcount{flex-shrink:0;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text-dim);background:var(--bg-soft);padding:4px 9px;border-radius:99px;border:1px solid var(--line-soft);margin-top:1px}
+  .bcount.full{background:rgba(91,184,91,.14);color:var(--done);border-color:rgba(91,184,91,.3)}
+  .chev{flex-shrink:0;color:var(--text-faint);font-size:11px;margin-top:5px;transition:transform .2s}
+  .block.collapsed .chev{transform:rotate(-90deg)}
+  .block.collapsed .body{display:none}
+
+  /* direction note */
+  .direct{margin:0 15px 12px;padding:10px 12px;background:var(--bg-soft);border-radius:10px;border-left:2px solid var(--amber-deep)}
+  .direct .dh{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:4px}
+  .direct p{margin:0;font-size:12.5px;color:var(--text-dim)}
+  .direct .mode{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;margin-right:6px}
+  .mode.setup{background:rgba(244,179,51,.16);color:var(--amber)}
+  .mode.observe{background:rgba(79,168,224,.16);color:var(--sky)}
+
+  /* ---- Shots ---- */
+  .body{padding:0 8px 6px}
+  .shot{display:flex;gap:11px;padding:11px 7px;border-top:1px solid var(--line-soft);cursor:pointer;align-items:flex-start}
+  .shot:first-child{border-top:none}
+  .check{flex-shrink:0;width:22px;height:22px;border-radius:6px;border:1.5px solid var(--line);background:var(--bg-soft);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--bg);transition:all .15s;margin-top:1px}
+  .shot.done .check{background:var(--done);border-color:var(--done)}
+  .shot.done .stext h4,.shot.done .stext p{color:var(--text-faint);text-decoration:line-through;text-decoration-color:var(--line)}
+  .stext{flex:1;min-width:0}
+  .stext h4{margin:0;font-size:13.5px;font-weight:600;line-height:1.35}
+  .stext p{margin:3px 0 0;font-size:12px;color:var(--text-dim)}
+  .specs{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+  .spec{font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 7px;border-radius:5px;letter-spacing:.01em}
+  .s-fps{background:rgba(236,106,94,.13);color:var(--coral)}
+  .s-res{background:rgba(244,179,51,.12);color:var(--amber)}
+  .s-both{background:rgba(79,168,224,.13);color:var(--sky)}
+  .s-track{background:rgba(156,123,214,.15);color:var(--violet)}
+  .s-must{background:rgba(236,106,94,.13);color:var(--coral);font-weight:800}
+  .s-talent{background:rgba(139,195,74,.14);color:var(--lime)}
+
+  /* rest slot */
+  .restcard{background:var(--bg-soft);border:1px dashed var(--line);border-radius:13px;padding:12px 15px;font-size:12.5px;color:var(--text-dim)}
+  .restcard b{color:var(--text-dim)}
+
+  /* ---- gear card ---- */
+  .gear{background:linear-gradient(145deg,#1B1E24,#191B20);border:1px solid var(--line-soft);border-radius:15px;padding:15px 16px;margin:4px 0 16px}
+  .gear h3{margin:0 0 11px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:7px}
+  .gear .row{display:flex;gap:10px;padding:7px 0;border-top:1px solid var(--line-soft);font-size:12.5px}
+  .gear .row:first-of-type{border-top:none}
+  .gear .k{font-family:var(--mono);font-size:11px;color:var(--amber);flex-shrink:0;width:112px;font-weight:600}
+  .gear .val{color:var(--text-dim)}
+
+  .hint{text-align:center;font-size:11px;color:var(--text-faint);font-family:var(--mono);padding:4px 0 20px;letter-spacing:.02em}
+
+  /* ---- foot ---- */
+  .footbar{position:fixed;bottom:0;left:0;right:0;z-index:60;background:rgba(14,15,18,.9);backdrop-filter:blur(12px);border-top:1px solid var(--line-soft);padding:11px 16px calc(env(safe-area-inset-bottom) + 11px);display:flex;gap:12px;align-items:center}
+  .footprog{flex:1}
+  .footprog .big{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--text)}
+  .footprog .small{font-size:11px;color:var(--text-faint);margin-top:1px}
+  .reset{background:var(--card);border:1px solid var(--line);color:var(--text-dim);padding:9px 13px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer}
+  .reset:active{background:var(--card-hi)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brandrow">
+    <span class="rec"></span>
+    <h1>Bee Champs</h1>
+    <span class="clock" id="clock">08:00</span>
+  </div>
+  <div class="progwrap">
+    <div class="progbar"><div class="progfill" id="progfill"></div></div>
+    <div class="progmeta"><span id="progText">0 / 0</span><span><b id="progPct">0%</b> DEN HOTOV</span></div>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" data-day="0" onclick="setDay(0)">
+    <div class="dn">Čtvrtek</div><div class="dd">EMOCE · WEB</div>
+  </div>
+  <div class="tab" data-day="1" onclick="setDay(1)">
+    <div class="dn">Pátek</div><div class="dd">VÍTEK · BRAND</div>
+  </div>
+</div>
+
+<main id="main"></main>
+
+<div class="footbar">
+  <div class="footprog"><div class="big" id="footBig">0%</div><div class="small" id="footSmall">začni odškrtávat</div></div>
+  <button class="reset" onclick="resetDay()">Reset dne</button>
+</div>
+
+<script>
+/* ============ DATA ============ */
+const GEAR = [
+  ['Slow-mo','4K 120fps → 4× zpomalení, ostré. Souboje, skoky, běh.'],
+  ['Emoce/detail','4K 60fps (plynulé, jde mírně zpomalit i sestříhat 1:1)'],
+  ['Web 16:9','4K 60fps na šířku, delší plynulé nájezdy'],
+  ['ActiveTrack','zapni u mluvení Vítka — drží ho v záběru sám'],
+  ['Zoom','nepřibližuj — jdi fyzicky blíž (Pocket nemá optiku)'],
+  ['Přehřátí','netoč 120fps dlouho v kuse, dej mu mezi tím oddech'],
+  ['Karta + baterie','ráno prázdná karta, plná baterka, powerbanka v tašce'],
+];
+
+const DAYS = [
+  /* ============ ČTVRTEK ============ */
+  {
+    kick:'Den 1 · Čtvrtek',
+    title:'Nasbírat emoce',
+    intro:'Dneska hlavně pozoruješ a chytáš. Děti nestav — nech je hrát a čekej na momenty. Priorita je Video 1, web 16:9 dotáčíš paralelně stejných scén.',
+    slots:[
+      {
+        time:'08:00', lbl:'Příchod, kontrola techniky', lite:'~15 min',
+        rest:'Prázdná karta, plná baterka. Projdi si areál — kde je světlo, kde se děti budou hýbat nejvíc. Ještě netoč, jen se rozkoukej.'
+      },
+      {
+        time:'08:30', lbl:'Ranní energie — establishing', lite:'web + emoce',
+        block:{
+          id:'web', cls:'b4', title:'Webové video — široké záběry', fmts:[['h','16:9'],['len','4K 60fps']],
+          direct:{mode:'observe',label:'Jen pozoruj',txt:'Ráno jsou děti čerstvé a světlo měkčí. Toč široké plynulé nájezdy areálu v pohybu. Nestav nic — jen zachyť atmosféru zdálky i zblízka.'},
+          shots:[
+            {t:'Široký establishing kempu',d:'Celý prostor v pohybu, kontext místa',specs:[['res','4K 60'],['h','16:9']]},
+            {t:'Dlouhé plynulé záběry 5–8 s',d:'Na web se nespěchá — pomalejší, klidný materiál',specs:[['res','4K 60'],['h','16:9']]},
+          ]
+        }
+      },
+      {
+        time:'09:00', lbl:'Video 1 — čistá emoce', lite:'nejvyšší priorita',
+        block:{
+          id:'v1', cls:'b1', title:'Video 1 — „Zastav scroll"', fmts:[['v','9:16'],['len','15–20 s']],
+          direct:{mode:'observe',label:'Nech je hrát',txt:'Žádné pózování, žádné „udělejte...". Sleduj hru a čekej na moment — smích, jásot, souboj. Nejlepší záběry jsou nehrané. Trpělivost > záběr navíc.'},
+          shots:[
+            {t:'Detail obličeje — smích v nasazení',d:'Blízko, ostré na oči a úsměv, žádný kontext',specs:[['must','MUST'],['res','4K 60']]},
+            {t:'Slow-mo — skok / běh / souboj o míč',d:'Plynule sledovat pohyb, ne staticky',specs:[['fps','↗ 4K 120'],['both','+ 16:9']]},
+            {t:'Skupinka dětí — spontánní jásot',d:'Ruce nahoře, smích — čekat na moment',specs:[['res','4K 60']]},
+            {t:'Detail — soustředění s úsměvem',d:'Zachytit snahu, ne jen výsledek',specs:[['res','4K 60']]},
+            {t:'Dítě běží do kamery a směje se',d:'Závěrečný záběr, kamera níž (dětská výška)',specs:[['must','MUST'],['res','4K 60']]},
+          ]
+        }
+      },
+      {
+        time:'11:00', lbl:'Pauza / přesun dětí', lite:'oddech',
+        rest:'Děti mají většinou svačinu/pauzu — ty taky. Zálohuj ranní materiál, nech Pocket vychladnout. Projdi si, co ještě chybí do Videa 1.'
+      },
+      {
+        time:'11:30', lbl:'Akční slow-mo blok', lite:'dvojí orientace',
+        block:{
+          id:'action', cls:'b1', title:'Akce — natoč dvakrát', fmts:[['v','9:16'],['h','16:9']],
+          direct:{mode:'setup',label:'Naaranžuj situaci',txt:'Tady smíš trochu režírovat — řekni trenérovi ať pustí hru s během a souboji o míč. Stejnou akci zaber svisle i vodorovně, ušetříš si to ve střihu a máš materiál na Video 1 i web.'},
+          shots:[
+            {t:'Souboj o míč — slow-mo, na výšku',d:'Sleduj pohyb plynule',specs:[['fps','↗ 4K 120'],['v','9:16']]},
+            {t:'Ta samá akce — na šířku',d:'Duplicitně pro web, nebo se šířkovou rezervou',specs:[['fps','↗ 4K 120'],['h','16:9']]},
+            {t:'Běh přímo do kamery',d:'Kamera nízko, dětská perspektiva',specs:[['res','4K 60'],['both','+ 16:9']]},
+          ]
+        }
+      },
+      {
+        time:'13:00', lbl:'Dolití mezer', lite:'flex',
+        rest:'Projeď lupu — co v Videu 1 a webu svítí neodškrtnuté, dotoč. Když máš vše, zbytek dne můžeš sbírat bonusové detaily nebo si nachystat zítřek s Vítkem.'
+      },
+    ]
+  },
+  /* ============ PÁTEK ============ */
+  {
+    kick:'Den 2 · Pátek',
+    title:'Vítek a systém',
+    intro:'Dneska potřebuješ trenéra. Jeho mluvící party natoč jako první, dokud je klidný. Pak dobírej aktivity. „Jsme všude" má nejnižší prioritu — dotoč, když zbyde čas.',
+    slots:[
+      {
+        time:'08:00', lbl:'Domluva s Vítkem', lite:'kritické',
+        rest:'Hned ráno si s Vítkem potvrď, KDY přesně natočíte jeho mluvící části. Bez něj Video 2 a „Jsme všude" nenatočíš. Ideálně dopoledne, dokud není unavený a děti ho nerozptylují.'
+      },
+      {
+        time:'08:45', lbl:'Video 2 — Vítek mluví', lite:'napevno s trenérem',
+        block:{
+          id:'v2t', cls:'b2', title:'Video 2 — mluvící party', fmts:[['v','9:16'],['len','trenér']],
+          direct:{mode:'setup',label:'Postav Vítka',txt:'Tady režíruješ. Postav Vítka na klidné místo s kempem v pohybu za zády. Zapni ActiveTrack ať ho kamera drží. Nech ho říct hák (1 věta) i vysvětlení principu (1–2 věty) — radši víc pokusů.'},
+          shots:[
+            {t:'Hák — Vítek mluví do kamery',d:'1 věta / otázka, přímo do objektivu',specs:[['talent','VÍTEK'],['track','ActiveTrack']]},
+            {t:'Vítek vysvětluje princip',d:'1–2 věty, klidný tón, ne kazatelský',specs:[['talent','VÍTEK'],['track','ActiveTrack']]},
+          ]
+        }
+      },
+      {
+        time:'09:30', lbl:'Video 2 — rozmanitost aktivit', lite:'klíčové',
+        block:{
+          id:'v2a', cls:'b2', title:'Video 2 — 4 různé sporty', fmts:[['v','9:16'],['len','3–5 s/kus']],
+          direct:{mode:'setup',label:'Hlídej rozmanitost',txt:'Nejdůležitější věc dne: záběry musí být VIDITELNĚ jiné sporty, ne varianty jedné hry. Zapisuj si, cos zabral, ať omylem nemáš dvakrát to samé. Jinak video ztrácí smysl.'},
+          shots:[
+            {t:'Aktivita A — běh / rychlost',d:'3–5 s, jasně čitelný pohyb',specs:[['res','4K 60']]},
+            {t:'Aktivita B — míč / koordinace',d:'jiný sport než A',specs:[['res','4K 60']]},
+            {t:'Aktivita C — překážky / rovnováha',d:'jiný sport než A/B',specs:[['res','4K 60']]},
+            {t:'Aktivita D — spolupráce ve dvojici',d:'týmová práce',specs:[['res','4K 60']]},
+            {t:'Závěrečný záběr dětí + uzavření',d:'text na obrazovce nebo mluvené',specs:[['res','4K 60']]},
+          ]
+        }
+      },
+      {
+        time:'11:00', lbl:'Pauza', lite:'oddech',
+        rest:'Zálohuj Video 2, nech Pocket vychladnout. Zkontroluj, že máš všechny 4 aktivity opravdu různé.'
+      },
+      {
+        time:'11:30', lbl:'Video „Jsme všude"', lite:'nejnižší priorita',
+        block:{
+          id:'v3', cls:'b3', title:'Video „Jsme všude"', fmts:[['v','9:16'],['len','~20 s']],
+          direct:{mode:'observe',label:'Klid, žádný tlak',txt:'Dojem rozmanitosti míst, i když je to jeden kemp. Toč různé kouty areálu, ať to vypadá jako víc lokací. Klidný pozitivní tón — žádná akce. Když nezbyde čas dneska, dá se dotočit i jindy.'},
+          shots:[
+            {t:'Vítek mluví, kemp v pohybu za ním',d:'1 věta „jsme tam, kde jsou vaše děti"',specs:[['talent','VÍTEK'],['track','ActiveTrack']]},
+            {t:'Různé kouty kempu #1',d:'jiná „lokace" v rámci místa',specs:[['res','4K 60']]},
+            {t:'Různé kouty kempu #2',d:'další prostor / úhel',specs:[['res','4K 60']]},
+            {t:'Různé kouty kempu #3',d:'ještě jiný kout pro pocit šíře',specs:[['res','4K 60']]},
+            {t:'Klidný pozitivní detail (ne akční)',d:'ladí s tónem „bez tlaku"',specs:[['res','4K 60']]},
+          ]
+        }
+      },
+      {
+        time:'13:00', lbl:'Fotky + dolití', lite:'závěr',
+        rest:'Poslední kolo: fotky pro web a Instagram, dolití čehokoliv neodškrtnutého z obou dnů. Než odjedeš, projeď lupu shora dolů — ať se nevracíš.'
+      },
+    ]
+  }
+];
+
+/* ============ STATE ============ */
+const KEY='beechamps_day_v2';
+let done={}; try{done=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){done={}}
+let curDay=0; try{const d=localStorage.getItem(KEY+'_day');if(d!==null)curDay=+d}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(done));localStorage.setItem(KEY+'_day',curDay)}catch(e){}}
+
+const SPECMAP={
+  fps:'s-fps',res:'s-res',both:'s-both',track:'s-track',must:'s-must',talent:'s-talent',
+  v:'s-both',h:'s-both'
+};
+
+/* ============ RENDER ============ */
+function render(){
+  const d=DAYS[curDay];
+  let h='';
+  h+=`<div class="dayhero"><div class="kick">${d.kick}</div><h2>${d.title}</h2><p>${d.intro}</p></div>`;
+
+  h+='<div class="tl">';
+  d.slots.forEach(s=>{
+    h+='<div class="slot'+(s.rest?' rest':'')+'">';
+    h+=`<div class="slothead"><span class="time">${s.time}</span><span class="lbl">${s.lbl}</span>${s.lite?`<span class="lite">${s.lite}</span>`:''}</div>`;
+    if(s.rest){
+      h+=`<div class="restcard">${s.rest}</div>`;
+    } else if(s.block){
+      const b=s.block, total=b.shots.length;
+      let nd=0; b.shots.forEach((x,i)=>{if(done[b.id+'_'+i])nd++});
+      const full=nd===total;
+      h+=`<div class="block ${b.cls} ${full?'collapsed':''}" id="blk_${b.id}">
+        <div class="bhead" onclick="toggleBlock('${b.id}')">
+          <div class="rail"></div>
+          <div class="btitle"><h3>${b.title}</h3><div class="fmtrow">${b.fmts.map(f=>`<span class="fmt ${f[0]}">${f[1]}</span>`).join('')}</div></div>
+          <div class="bcount ${full?'full':''}">${nd}/${total}</div>
+          <div class="chev">▼</div>
+        </div>`;
+      if(b.direct){
+        h+=`<div class="direct"><div class="dh"><span class="mode ${b.direct.mode}">${b.direct.mode==='setup'?'REŽIE':'POZORUJ'}</span>${b.direct.label}</div><p>${b.direct.txt}</p></div>`;
+      }
+      h+='<div class="body">';
+      b.shots.forEach((x,i)=>{
+        const k=b.id+'_'+i, isDone=!!done[k];
+        const specs=(x.specs||[]).map(sp=>`<span class="spec ${SPECMAP[sp[0]]||''}">${sp[1]}</span>`).join('');
+        h+=`<div class="shot ${isDone?'done':''}" onclick="toggle('${k}')">
+          <div class="check">✓</div>
+          <div class="stext"><h4>${x.t}</h4><p>${x.d}</p>${specs?`<div class="specs">${specs}</div>`:''}</div>
+        </div>`;
+      });
+      h+='</div></div>';
+    }
+    h+='</div>';
+  });
+  h+='</div>';
+
+  // gear card
+  h+='<div class="gear"><h3>⚙ Osmo Pocket 3 — rychlý tahák</h3>';
+  GEAR.forEach(g=>h+=`<div class="row"><span class="k">${g[0]}</span><span class="val">${g[1]}</span></div>`);
+  h+='</div>';
+
+  h+='<div class="hint">ťukni na záběr = hotovo · ukládá se v telefonu</div>';
+
+  document.getElementById('main').innerHTML=h;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',+t.dataset.day===curDay));
+  updateProgress();
+}
+
+function updateProgress(){
+  const d=DAYS[curDay]; let total=0,nd=0;
+  d.slots.forEach(s=>{if(s.block){s.block.shots.forEach((x,i)=>{total++;if(done[s.block.id+'_'+i])nd++})}});
+  const pct=total?Math.round(nd/total*100):0;
+  document.getElementById('progfill').style.width=pct+'%';
+  document.getElementById('progText').textContent=`${nd} / ${total} ZÁBĚRŮ`;
+  document.getElementById('progPct').textContent=pct+'%';
+  document.getElementById('footBig').textContent=pct+'%';
+  document.getElementById('footSmall').textContent=pct===100?'den hotový 🎬':(nd===0?'začni odškrtávat':`zbývá ${total-nd} záběrů`);
+}
+
+function toggle(k){done[k]=!done[k];save();render()}
+function toggleBlock(id){document.getElementById('blk_'+id).classList.toggle('collapsed')}
+function setDay(d){curDay=d;save();render();window.scrollTo({top:0,behavior:'smooth'})}
+function resetDay(){
+  if(!confirm('Odškrtnout všechny záběry tohoto dne?'))return;
+  const d=DAYS[curDay];
+  d.slots.forEach(s=>{if(s.block)s.block.shots.forEach((x,i)=>delete done[s.block.id+'_'+i])});
+  save();render();
+}
+
+// live clock
+function tick(){const n=new Date();document.getElementById('clock').textContent=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')}
+tick();setInterval(tick,15000);
+
+render();
+</script>
+</body>
+</html>
