@@ -1,0 +1,438 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Trenér obhajoby</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Single light theme on white by user request. Layout: one-column study app, tab bar on top, one focused card per mode */
+:root{
+  --bg:#FFFFFF; --surface:#FFFFFF; --ink:#22180F; --muted:#6C6157; --line:#E2DDD5;
+  --accent:#A8611A; --accent-ink:#FFFFFF; --soft:#F3E6D3; --good:#2F7A4B; --good-soft:#E1F0E6; --warn:#B4472E;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;padding-inline:16px;padding-block:20px 48px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+header{display:flex;flex-direction:column;gap:6px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(28px,6vw,40px);line-height:1.1;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:600;font-size:22px;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-weight:600;font-size:18px;margin:0}
+.sub{color:var(--muted);margin:0;max-width:62ch}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:flex;gap:6px;overflow-x:auto}
+nav button{flex:0 0 auto;font:600 14px var(--body);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer}
+nav button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.panel{display:flex;flex-direction:column;gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{font:600 15px var(--body);border-radius:10px;padding:10px 16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.good{background:var(--good-soft);color:var(--good);border-color:transparent}
+.chip{font:500 13px var(--body);padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--soft);border-color:var(--accent);color:var(--ink)}
+.meta{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.04em;font-variant-numeric:tabular-nums}
+.progress{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.progress > i{display:block;height:100%;background:var(--good);width:0;transition:width .3s}
+/* plán */
+.week{display:flex;flex-direction:column;gap:6px}
+.task{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line)}
+.task:first-of-type{border-top:0}
+.task input{margin-top:4px;width:18px;height:18px;accent-color:var(--good);flex:0 0 auto}
+.task label{cursor:pointer}
+.task.done label{color:var(--muted);text-decoration:line-through}
+/* kartičky */
+.flip{cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.flip-in{display:flex;flex-direction:column}
+.face{padding:22px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.face.back{border-top:1px solid var(--line);display:none;cursor:auto}
+.flip.on .face.back{display:flex}
+.flip.on .hint{display:none}
+.def{font-size:17px;line-height:1.6;max-width:65ch}
+.where{line-height:1.65;max-width:65ch}
+.term{font-family:var(--display);font-weight:800;font-size:clamp(24px,5vw,32px);line-height:1.15;text-wrap:balance}
+.star{color:var(--accent)}
+.lbl{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.where{background:var(--soft);border-radius:10px;padding:10px 12px}
+.known{color:var(--good);font-weight:600}
+/* zkoušení */
+.q{font-family:var(--display);font-weight:600;font-size:clamp(20px,4.4vw,26px);line-height:1.25;text-wrap:balance}
+.ans{border-top:1px solid var(--line);padding-top:12px}
+.tag{font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+/* scénář */
+.slide-no{font-family:var(--display);font-weight:800;font-size:48px;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums}
+.hook{border-left:0;background:var(--soft);border-radius:10px;padding:12px 14px}
+.time{font-family:var(--mono);font-size:13px;color:var(--muted)}
+ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+@media (prefers-reduced-motion: reduce){.progress>i{transition:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">VŠEM · praktická práce · obhajoba</span>
+    <h1>Trenér obhajoby</h1>
+    <p class="sub">Návrh marketingového komunikačního systému pro lokální pekárnu. Kartičky s pojmy ze tvých skript, zkoušení otázek komise, scénář slajd po slajdu a plán učení.</p>
+  </header>
+
+  <nav role="tablist" aria-label="Režimy">
+    <button role="tab" id="t-karty" aria-selected="true" data-tab="karty">Kartičky</button>
+    <button role="tab" id="t-zkouseni" aria-selected="false" data-tab="zkouseni">Zkoušení</button>
+    <button role="tab" id="t-scenar" aria-selected="false" data-tab="scenar">Scénář</button>
+    <button role="tab" id="t-plan" aria-selected="false" data-tab="plan">Plán</button>
+    <button role="tab" id="t-pojistky" aria-selected="false" data-tab="pojistky">Když nevím</button>
+  </nav>
+
+  <!-- KARTIČKY -->
+  <section class="panel" id="p-karty" role="tabpanel" aria-labelledby="t-karty">
+    <div class="row" id="kf"></div>
+    <div class="row"><span class="meta" id="kmeta"></span></div>
+    <div class="progress" aria-hidden="true"><i id="kprog"></i></div>
+    <div class="flip" id="flip" tabindex="0" role="button" aria-label="Ukázat vysvětlení">
+      <div class="flip-in">
+        <div class="face front">
+          <span class="lbl" id="kcat"></span>
+          <div class="term" id="kterm"></div>
+          <span class="meta hint">Klepni na kartičku. Nejdřív řekni definici nahlas, pak se podívej.</span>
+        </div>
+        <div class="face back">
+          <span class="lbl">Co to je</span>
+          <div class="def" id="kdef"></div>
+          <span class="lbl">Kde v práci</span>
+          <div class="where" id="kwhere"></div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <button class="btn" id="kprev">← Předchozí</button>
+      <button class="btn good" id="kknow">Umím</button>
+      <button class="btn primary" id="knext">Další →</button>
+      <button class="btn" id="kshuf">Zamíchat</button>
+    </div>
+  </section>
+
+  <!-- ZKOUŠENÍ -->
+  <section class="panel" id="p-zkouseni" role="tabpanel" aria-labelledby="t-zkouseni" hidden>
+    <div class="row" id="zf"></div>
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><span class="tag" id="zcat"></span><span class="meta" id="zmeta"></span></div>
+      <div class="q" id="zq"></div>
+      <div class="ans" id="za" hidden></div>
+      <div class="row">
+        <button class="btn primary" id="zshow">Ukázat odpověď</button>
+        <button class="btn good" id="zok" hidden>Zvládl bych</button>
+        <button class="btn" id="zno" hidden>Ještě ne</button>
+      </div>
+    </div>
+    <p class="meta" id="zstat"></p>
+  </section>
+
+  <!-- SCÉNÁŘ -->
+  <section class="panel" id="p-scenar" role="tabpanel" aria-labelledby="t-scenar" hidden>
+    <div class="card">
+      <div class="row" style="justify-content:space-between;align-items:flex-end">
+        <div style="display:flex;gap:14px;align-items:flex-end"><span class="slide-no" id="sno"></span><h2 id="stitle"></h2></div>
+        <span class="time" id="stime"></span>
+      </div>
+      <p id="stext" style="margin:0"></p>
+      <div class="hook" id="shook"></div>
+    </div>
+    <div class="row">
+      <button class="btn" id="sprev">← Slajd</button>
+      <button class="btn primary" id="snext">Slajd →</button>
+      <span class="meta">Celkem cca 9 minut · šipky na klávesnici fungují</span>
+    </div>
+  </section>
+
+  <!-- PLÁN -->
+  <section class="panel" id="p-plan" role="tabpanel" aria-labelledby="t-plan" hidden>
+    <div class="card"><div class="row" style="justify-content:space-between"><h2>Plán učení</h2><span class="meta" id="pmeta"></span></div>
+      <div class="progress" aria-hidden="true"><i id="pprog"></i></div>
+      <p class="sub" style="margin:0">Denně 45–60 minut. U každého tématu: přečti stránky ze skript → definice jednou větou → ukaž ji na pekárně → dvě věty nahlas. Odškrtnuté si stránka pamatuje v tomto prohlížeči.</p>
+    </div>
+    <div id="weeks" class="panel"></div>
+  </section>
+
+  <!-- POJISTKY -->
+  <section class="panel" id="p-pojistky" role="tabpanel" aria-labelledby="t-pojistky" hidden>
+    <div class="card">
+      <h2>Když nevíš odpověď</h2>
+      <ol class="steps">
+        <li><b>Přiznej:</b> „Tohle přesně nemám, v práci jsem pracoval s orientačními rozsahy z provozu.“</li>
+        <li><b>Vysvětli proč:</b> „Práce je aplikovaná a stojí na zkušenosti z provozu, ne na auditovaných datech.“</li>
+        <li><b>Přesuň na řešení:</b> „Proto je součástí návrhu měření KPI, které to upřesní.“</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>Další pojistky</h3>
+      <ol class="steps">
+        <li>Dej si tři vteřiny na rozmyšlenou. Komise to nebere jako slabost.</li>
+        <li>Nejasnou otázku zopakuj vlastními slovy: „Ptáte se, jestli…?“</li>
+        <li>Na slabinu z posudku (zdroje, data) neútoč obranou: „Máte pravdu, je to limit práce,“ a hned řekni, co bys udělal dál.</li>
+        <li>Nikdy nevymýšlej číslo. Rozsah z provozu je v pořádku, vymyšlená přesnost ne.</li>
+        <li>U teoretické otázky vždy dva kroky: definice podle skript, pak pekárna.</li>
+      </ol>
+    </div>
+  </section>
+</div>
+
+<script>
+const S = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+
+/* ---------- DATA ---------- */
+const TERMS = [
+ ["Marketing","Cílený marketing (STP)",1,
+  "Firma nemluví na celý trh stejně, ale vybere si, koho chce oslovit. Postupuje ve třech krocích: nejdřív rozdělí zákazníky do skupin (segmentace), pak si vybere, na kterou skupinu se zaměří (targeting), a nakonec rozhodne, jak se jí chce představit (positioning).",
+  "Celá práce tímhle postupem prochází, jen ho tak nenazývá. V kapitole 3.1 rozděluji zákazníky na důchodce, maminky a mladé, to je segmentace. Ze stejné tabulky vychází, že největší potenciál mají mladí, a právě na ně návrh míří, to je targeting. V kapitole 4.1 pak definuji, jak se pekárna má prezentovat: „tradiční rodinná pekárna v moderním podání“, to je positioning. U komise řekni: „Práce v podstatě sleduje logiku cíleného marketingu.“"],
+ ["Marketing","Segmentace trhu",0,
+  "Rozdělení zákazníků do skupin podle toho, jak se chovají nebo kým jsou. Lidé uvnitř jedné skupiny si mají být podobní, a skupiny mezi sebou se mají lišit. Díky tomu můžeš každou skupinu oslovit jinak.",
+  "V kapitole 3.1 je tabulka 1 se třemi segmenty. Důchodci chodí pravidelně, ale nakupují málo a mají malý potenciál růstu. Maminky nakupují menší množství, jsou někde uprostřed. Mladí chodí jen nárazově, ale mají největší potenciál, protože je zatím nikdo cíleně neoslovuje. Z toho vychází celý důvod, proč návrh chce komunikovat i mimo stávající okruh."],
+ ["Marketing","Segmentační kritéria",0,
+  "Podle čeho zákazníky do skupin dělíš. Může to být to, kým jsou (věk, kde bydlí), nebo to, jak nakupují (jak často, jestli jsou věrní). Skripta tomu říkají popisná kritéria a kritéria užití.",
+  "V práci jsem použil obě. Věk 40–80 let a maminky s dětmi jsou demografická kritéria. To, že jde o lokální zákazníky z okolí, je geografické kritérium. Sloupec „frekvence“ v tabulce 1 je kritérium užití, tedy jak často zákazník chodí. Když se komise zeptá, podle čeho jsi dělil, vyjmenuj tyhle tři věci."],
+ ["Marketing","Tržní zacílení (targeting)",0,
+  "Když už máš skupiny zákazníků, rozhodneš se, na kterou se zaměříš. Skupina by měla být dost velká, dostupná pro tvou komunikaci a měla by mít smysl z pohledu toho, co firma umí.",
+  "V práci zacilují na mladší zákazníky, i když dnes chodí nejméně. Důvod je, že tabulka 1 u nich ukazuje vysoký potenciál růstu a jsou dosažitelní přes Instagram, který pekárna už používá. Zároveň návrh nechce odradit stálé zákazníky, takže charakter pekárny zůstává stejný."],
+ ["Marketing","Positioning",0,
+  "Jak chceš, aby tě zákazník vnímal a čím se v jeho hlavě odlišíš od ostatních. Je to jedna jasná představa o značce, ke které se pak vztahuje všechna komunikace.",
+  "V kapitole 4.1 je pozicování „tradiční rodinná pekárna v moderním podání“. Spojuje kvalitu řemeslné výroby, kterou mají rádi stálí zákazníci, s moderní komunikací, která má oslovit mladší. Z pozicování pak vychází tone of voice (přátelský, autentický) i vizuální styl."],
+ ["Marketing","Intuitivní přístup k segmentaci",0,
+  "Segmentace na základě vlastní zkušenosti a pozorování, bez systematického výzkumu nebo dotazníků. Je rychlá a levná, ale vidí jen to, co si člověk sám všimne.",
+  "Tohle je přesně způsob, jak vznikla tvoje analýza: rok v provozu, pozorování a rozhovory se zákazníky (kapitola 2.1). Je to legitimní přístup, ale zároveň limit práce. Když se komise zeptá na metodiku, řekni: „Segmentace je intuitivní, ze zkušenosti z provozu. Dalším krokem by byl systematický přístup, například dotazník mezi zákazníky.“"],
+ ["Marketing","Spotřební chování",0,
+  "Jak se lidé chovají, když něco kupují, používají a znovu kupují. Zkoumá se, proč nakupují, jak se rozhodují a co je přitom ovlivňuje.",
+  "Celá analýza zákazníků v kapitole 3.1 je o spotřebním chování: proč stálí zákazníci chodí pravidelně, proč mladí jen nárazově a proč špatné parkování snižuje spontánní návštěvy. Návrh se pak snaží tohle chování změnit, aby nový zákazník přišel a pak se vracel."],
+ ["Marketing","Kupní rozhodovací proces",1,
+  "Pět kroků, kterými zákazník prochází, než něco koupí. Uvědomí si potřebu, hledá informace, porovnává možnosti, rozhodne se a koupí, a po nákupu hodnotí, jestli byl spokojený.",
+  "Tvůj návrh pokrývá všechny kroky. Teaser na Instagramu vyvolá chuť a potřebu. Instagram a web slouží k hledání informací o akci. Hlavní promo pomáhá při porovnávání s jinými možnostmi. Výloha a personál působí v okamžiku rozhodnutí. Obsah po akci (fotky, shrnutí) podporuje dobrý pocit po nákupu. Hlavní problém z kapitoly 3.4 je, že se lidé o akcích dozvěděli pozdě, takže se do procesu vůbec nedostali."],
+ ["Marketing","Typy kupního rozhodování",0,
+  "Ne každý nákup je stejně promyšlený. Rutinní nákup děláš ze zvyku bez přemýšlení, impulzivní nákup je okamžité rozhodnutí, a komplexní nákup se týká drahých věcí, kde hodně zvažuješ.",
+  "Stálí zákazníci, hlavně důchodci, nakupují rutinně: chodí pravidelně pro to samé. Na ně akce tolik nepůsobí, přijdou tak jako tak. Akce a jejich komunikace míří na nové zákazníky a na impuls: vidí lákavou tematickou nabídku (třeba burgery) a rozhodnou se, že v sobotu přijdou."],
+ ["Marketing","Situační vlivy",0,
+  "Věci, které ovlivní nákup v danou chvíli, i když nesouvisí se zákazníkem samotným. Patří sem prostředí obchodu, personál, vystavení zboží, ale i čas a místo.",
+  "V práci jsou situační vlivy vidět na obou stranách. Negativní je parkování a poloha mimo centrum (kapitola 1 a 3.1), což snižuje spontánní návštěvy. Pozitivně je návrh využívá v offline vrstvě (kapitola 4.3): výloha jako hlavní nosič akcí a personál, který zákazníkům přímo v prodejně řekne o další akci."],
+ ["Marketing","Adopční proces",0,
+  "Jak zákazník přijímá něco nového. Nejdřív se o tom dozví, pak získá zájem, zváží to, zkusí to, a když je spokojený, začne to kupovat pravidelně.",
+  "Pět fází sobotního eventu z kapitoly 4.4 přesně kopíruje adopční proces. Teaser vytvoří povědomí, hlavní promo vzbudí zájem, připomenutí vede k rozhodnutí přijít, samotná návštěva je pokus, a když se zákazníkovi líbí, vrátí se na další event. Cílem práce je, aby se z nového zákazníka stal stálý."],
+ ["Marketing","Marketingový mix 4P",1,
+  "Čtyři hlavní nástroje, kterými firma ovlivňuje zákazníka: produkt (co prodává), cena (za kolik), místo (kde a jak je produkt dostupný) a propagace (jak o sobě dává vědět).",
+  "Tohle je jedna z nejsilnějších vět celé obhajoby. Pekárna má silný produkt (kapitola 3.6: problém není kvalita) a dostupné ceny. Místo je slabé: poloha mimo centrum a parkování, a to změnit nejde. Jediný nástroj, kde zbývá prostor pro růst, je propagace, tedy komunikace. Proto je celá práce o komunikačním systému."],
+ ["Marketing","4C (Lauterborn)",0,
+  "Stejný mix jako 4P, ale z pohledu zákazníka. Místo produktu se ptáš na hodnotu pro zákazníka, místo ceny na to, co ho nákup celkem stojí (i čas a úsilí), místo místa na pohodlí a místo propagace na oboustrannou komunikaci.",
+  "U pekárny je hodnota vysoká (kvalitní produkt), ale pohodlí nízké: zákazník musí přijet mimo centrum a hledat parkování, to ho stojí čas a úsilí. Proto musí komunikace dát dobrý důvod tu cestu podniknout, třeba zajímavý sobotní event. Je to dobrá odpověď, když se tě zeptají, proč nestačí jen kvalitní produkt."],
+ ["Marketing","Komunikační mix",1,
+  "Všechny způsoby, jak firma komunikuje se zákazníky. Hlavní nástroje jsou reklama, podpora prodeje, osobní prodej, public relations (PR) a přímý marketing.",
+  "Celá kapitola 4 je vlastně návrh komunikačního mixu. Sobotní eventy jsou PR (event marketing) a podpora prodeje. Personál v prodejně je osobní prodej. Instagram, web a QR kódy jsou přímý a online marketing. Výloha a plakáty jsou BTL komunikace. Placená reklama v návrhu skoro není, a proto je návrh levný."],
+ ["Marketing","PR a event marketing",0,
+  "PR je dlouhodobé budování dobrého vztahu a pověsti u veřejnosti. Event marketing je jeden z jeho nástrojů: firma pořádá akci, která lidi zaujme a spojí si ji se značkou.",
+  "Sobotní eventy z kapitoly 4.4 jsou event marketing. Nejde jen o jednorázový prodej, ale o to, aby pekárna měla pravidelnou akci, na kterou se lidé těší a kterou si spojí se značkou. Kapitola 3.4 popisuje, že dnes jsou akce izolované události, a návrh z nich dělá dlouhodobý koncept."],
+ ["Marketing","Podpora prodeje",0,
+  "Krátkodobé lákadlo, které má zákazníka přimět koupit hned nebo víc. Typicky slevy, speciální nabídky, ochutnávky nebo časově omezené produkty.",
+  "Tematické nabídky na akcích, například burgerová akce, fungují jako podpora prodeje: časově omezená speciální nabídka, která má přivést lidi právě v sobotu. Tabulka 2 ukazuje, jak silný efekt to má: úspěšná akce dělá 10–12 tisíc oproti 5–6 tisícům běžného víkendu."],
+ ["Marketing","Osobní prodej",0,
+  "Komunikace tváří v tvář mezi prodavačem a zákazníkem. Je nejosobnější a dokáže okamžitě reagovat na to, co zákazník chce.",
+  "V offline vrstvě (kapitola 4.3) má personál aktivní roli: informuje zákazníky v prodejně o aktuálních a dalších akcích. Každý zákazník u pultu je tak potenciální účastník další akce. Mladý personál zmiňuje práce jako silnou stránku pekárny už v kapitole 1."],
+ ["Marketing","Přímý marketing",0,
+  "Komunikace přímo s konkrétním zákazníkem, ideálně tak, aby hned reagoval. Dnes hlavně online: sociální sítě, e-mail, web.",
+  "Instagram jako hlavní kanál, web s rezervacemi a QR kódy ze 4.2 a 4.3 jsou přímý a online marketing. QR kód na plakátu vede zákazníka rovnou na Instagram nebo web, takže propojuje offline a online. V závěru práce doporučuješ ještě e-mail marketing, což je klasický přímý marketing."],
+ ["Marketing","ATL a BTL",0,
+  "ATL (nadlinková) je komunikace přes masová média, jako je televize, rádio nebo billboardy. BTL (podlinková) je komunikace bez masových médií, například v místě prodeje, plakáty nebo akce.",
+  "Tvůj návrh je skoro celý BTL: výloha, plakáty, personál a eventy přímo v pekárně. To odpovídá malému lokálnímu podniku, protože BTL je levnější a cílí na lidi v okolí. Je to další argument, proč je návrh ekonomicky nenáročný."],
+ ["Marketing","Výrobková média",0,
+  "Vše, čím o sobě říká samotný produkt: značka, design, obal, styl a image. Produkt tak komunikuje i bez reklamy.",
+  "Jednotná vizuální identita z kapitoly 4.1 (barvy, typografie, šablony) a jednotný styl fotek produktů jsou práce s výrobkovými médii. Analýza v kapitole 3.3 ukazuje, že dnešní fotky neodpovídají kvalitě produktů, takže produkt „komunikuje“ hůř, než by mohl."],
+ ["Marketing","Životní cyklus výrobku",0,
+  "Každý výrobek prochází fázemi: zavedení na trh, růst, zralost a nakonec ústup. V každé fázi potřebuje jinou komunikaci.",
+  "Tematické akce (třeba burgerová nabídka) přinášejí do sortimentu něco nového a fungují jako inovace. Pravidelné střídání témat pomáhá, aby nabídka nezevšedněla a zákazník měl důvod přijít znovu. Do hloubky to práce neřeší, ale je to dobrá odpověď, pokud se zeptají na produkt."],
+ ["Marketing","Tvorba ceny",0,
+  "Cenu určují tři věci. Náklady určují minimum, pod které nejde jít. Konkurence ukazuje rozumné rozmezí. Poptávka, tedy kolik jsou lidé ochotní zaplatit, určuje strop.",
+  "Práce uvádí dostupné ceny jako silnou stránku (kapitola 1). Cena tedy není problém a návrh ji nemění. Pekárna nesoutěží cenou s Tescem, ale kvalitou a zážitkem. Pokud se zeptají na cenu, řekni, že práce se zaměřila na komunikaci, protože cena a produkt už fungují."],
+ ["Marketing","Přímá distribuční cesta",0,
+  "Výrobce prodává rovnou zákazníkovi bez prostředníků. Výhodou je přímý kontakt, rychlá zpětná vazba a přehled o zákaznících.",
+  "Pekárna peče a prodává sama ve vlastní prodejně, takže jde o přímou distribuční cestu. Proto mohla analýza vycházet z přímého pozorování a rozhovorů se zákazníky (kapitola 2.1). Web s rezervacemi z kapitoly 4.2 tuhle cestu rozšiřuje: zákazník si může produkt objednat předem."],
+ ["Management","Strategický management",0,
+  "Postup, jak firma dosahuje dlouhodobých cílů. Má pět kroků: stanoví poslání, určí cíle, analyzuje prostředí a vybere strategii, strategii realizuje a nakonec zhodnotí výsledky.",
+  "Struktura práce kopíruje druhou polovinu tohoto postupu. Kapitola 3 je analýza prostředí (zákazníci, tržby, Instagram, konkurence). Kapitola 4 je volba strategie a návrh realizace. Kapitola 4.5 s KPI je hodnocení výsledků. Když se zeptají na metodiku, tohle je elegantní odpověď."],
+ ["Management","Poslání a vize",0,
+  "Poslání říká, proč firma existuje a co dělá pro zákazníky. Vize popisuje, kam chce firma dojít v delší budoucnosti.",
+  "Práce poslání a vizi takto nepojmenovává, ale jádro značky v kapitole 4.1 jim odpovídá. Pozicování „tradiční rodinná pekárna v moderním podání“ říká, kým pekárna je a čím chce být. Cílem není změnit charakter podniku, ale rozvíjet jeho silné stránky (kapitola 1)."],
+ ["Management","SMART cíle",1,
+  "Dobře nastavený cíl musí být konkrétní a v souladu se strategií, měřitelný v číslech, přijatelný pro lidi, kteří ho plní, realistický a s jasným termínem.",
+  "Tady na tebe komise může zatlačit. V tabulce 6 jsou cíle „tržby z akcí 9–10 tisíc“ a „+20–30 % sledujících“ měřitelné. Cíle „postupný růst“ engagementu a „rostoucí trend“ rezervací ale měřitelné nejsou a žádný z cílů nemá termín. Odpověz poctivě: „Nejsou úplně SMART. Opravil bych to tak, že první měsíc změřím výchozí hodnotu a stanovím číslo a termín.“"],
+ ["Management","Manažerské funkce",0,
+  "Základní činnosti manažera. Postupně jde o plánování, organizování, vedení lidí a kontrolu. Průběžně k nim patří rozhodování a analýza.",
+  "Návrh pokrývá všechny funkce. Plánování je obsahový plán a pětifázový postup akcí. Organizování je rozdělení rolí, kdo dělá obsah a co dělá personál. Vedení lidí je zapojení personálu do komunikace. Kontrola je měsíční vyhodnocení KPI z kapitoly 4.5."],
+ ["Management","Kontrola",1,
+  "Porovnání toho, co se skutečně stalo, s tím, co bylo naplánované, aby se našly odchylky a dalo se zareagovat. Podle času může být předběžná (před akcí), průběžná (během ní) nebo následná (po ní).",
+  "Měsíční sledování KPI v kapitole 4.5 je kontrola: řádná, protože je pravidelná a plánovaná, a následná, protože hodnotí výsledky po proběhlých akcích. Na jejím základě se silné prvky posilují a slabé upravují. Hlavní riziko z kapitoly 4.6, nedostatečná disciplína, se právě díky kontrole odhalí včas."],
+ ["Management","Delegování",0,
+  "Manažer předá část úkolů a pravomocí jiným lidem. Odpovědnost za výsledek ale zůstává jemu.",
+  "V návrhu se deleguje hlavně na personál, který informuje zákazníky o akcích. Komunikaci na Instagramu by měl mít na starosti jeden odpovědný člověk. Pokud se zeptají, kdo za systém odpovídá, odpověz, že úkoly se dají rozdělit, ale odpovědnost za výsledek nese ten, kdo komunikaci řídí. [doplň: kdo to v pekárně je]"],
+ ["Management","Motivace (Herzberg)",0,
+  "Herzberg dělí faktory na dvě skupiny. Hygienické faktory (plat, podmínky) jen odstraní nespokojenost, ale lidi nemotivují. Skutečně motivují motivátory: zajímavá práce, uznání a odpovědnost.",
+  "Když má personál aktivní roli v komunikaci akcí (kapitola 4.3), dostává zajímavější práci a odpovědnost, tedy motivátory. To je odpověď na otázku, jak zajistit, aby personál systém podporoval a nebral ho jako práci navíc."],
+ ["Ekonomika","Monopolistická konkurence",1,
+  "Trh, kde je hodně firem, které prodávají podobné, ale ne úplně stejné produkty. Každá se snaží odlišit (značkou, kvalitou, zážitkem), a díky tomu může trochu ovlivnit svou cenu. Do odvětví se dá snadno vstoupit.",
+  "Pekárna, Food Story, řeznictví a Tesco v okolí (kapitola 3.5) jsou typický příklad. Prodávají podobné věci a pekárna nemůže vyhrát polohou, prostorem ani šíří sortimentu. Musí se odlišit, a hlavním nástrojem odlišení je podle práce značka a komunikace. Tohle je nejlepší most mezi ekonomikou a tvou prací."],
+ ["Ekonomika","Okolí podniku",0,
+  "Vnější faktory, které firmu ovlivňují a které firma sama nemůže změnit. Patří sem geografické okolí (poloha), ekonomické, sociální, právní, technologické a další.",
+  "Hlavní problém pekárny vychází z geografického okolí: poloha mimo centrum a omezené parkování (kapitola 1). Ekonomické okolí tvoří konkurence v blízkosti. Okolí změnit nejde, a proto je celá práce postavená na myšlence, že nevýhodu polohy kompenzuje dobře řízená komunikace."],
+ ["Ekonomika","Cíle podniku",0,
+  "Firma má cíle v různých časových horizontech. Krátkodobě musí být schopná platit, střednědobě chce přiměřený zisk a dlouhodobě chce, aby rostla její hodnota.",
+  "Hlavní cíl práce, stabilizovat tržby a rozšířit zákaznickou základnu (kapitola 1), podporuje střednědobý cíl přiměřeného zisku. Pravidelné akce s předvídatelnými tržbami pomáhají i krátkodobé platební schopnosti, protože tržby méně kolísají."],
+ ["Ekonomika","Fixní a variabilní náklady",0,
+  "Fixní náklady se nemění podle toho, kolik prodáš, třeba nájem nebo tisk plakátu. Variabilní náklady rostou s každým prodaným kusem, třeba suroviny na burger.",
+  "Na záložním slajdu 16 jsou náklady na komunikaci jedné akce: čas na obsah, tisk plakátů a případná placená propagace se chovají jako fixní náklady akce. Suroviny na prodané produkty jsou variabilní náklady. Tohle rozdělení potřebuješ, když budeš počítat bod zvratu. [doplň vlastní čísla z provozu]"],
+ ["Ekonomika","Bod zvratu",1,
+  "Množství, které musíš prodat, aby tržby pokryly všechny náklady. Pod ním jsi ve ztrátě, nad ním vyděláváš. Počítá se jako fixní náklady děleno rozdílem ceny a variabilních nákladů na kus: q = a / (p − b).",
+  "Když se komise zeptá, jestli se akce vyplatí, použiješ bod zvratu. Fixní náklady akce (plakáty, čas na obsah) vydělíš tím, kolik ti zbude z jednoho prodaného produktu po odečtení surovin. Výsledek je počet kusů, které akce musí prodat. Z tabulky 2 víš, že úspěšná akce přinese o 4–7 tisíc víc než běžný víkend, a s tím můžeš porovnat. [doplň: jeden spočítaný příklad]"]
+];
+
+const QS = [
+ ["Teorie","Použil jste cílený marketing? Popište jeho etapy.","Ano. Cílený marketing má tři etapy: segmentace, tržní zacílení a positioning. Segmentoval jsem zákazníky na důchodce, maminky a mladé, zacílil jsem na mladší jako skupinu s největším potenciálem a pozicování je „tradiční rodinná pekárna v moderním podání“."],
+ ["Teorie","Podle jakých kritérií jste segmentoval?","Podle demografických kritérií (věk, rodinná situace), geografických (lokální okruh) a kritérií užití, konkrétně frekvence nákupu. Byl to intuitivní přístup ze zkušenosti, ne systematický výzkum, a to je limit práce."],
+ ["Teorie","Jaké nástroje komunikačního mixu návrh používá?","Sobotní eventy jsou event marketing, tedy nástroj PR, a zároveň podpora prodeje. Personál je osobní prodej. Instagram, web a QR kódy jsou přímý a on-line marketing. Výloha a plakáty jsou BTL. Placenou reklamu návrh skoro nepoužívá, proto je levný."],
+ ["Teorie","Jak souvisí návrh s kupním rozhodovacím procesem?","Instagram a web pomáhají ve fázi hledání informací, teaser a promo při hodnocení alternativ, výloha a personál jsou situační vlivy při rozhodnutí a obsah po akci podporuje ponákupní chování."],
+ ["Teorie","Jaký typ tržní struktury je váš trh?","Monopolistická konkurence: hodně podobných podniků, diferencovaný produkt, volný vstup. Pekárna se musí odlišit a značka a komunikace jsou nástroj diferenciace."],
+ ["Teorie","Jsou vaše cíle SMART?","Tržby z akcí 9–10 tisíc a +20–30 % sledujících jsou měřitelné. Engagement a rezervace („postupný růst“) ne a chybí jim termín. Opravil bych to: první měsíc změřit výchozí hodnotu a stanovit cíl v číslech s termínem."],
+ ["Teorie","Jakou manažerskou funkci představuje měsíční vyhodnocení?","Kontrolu: porovnání skutečnosti s cíli. Je to řádná a následná kontrola. Po ní přicházejí nápravná opatření, tedy úprava systému."],
+ ["Teorie","Jak byste spočítal, jestli se akce vyplatí?","Bodem zvratu: q = a / (p − b). Fixní náklady akce dělím příspěvkem na úhradu jednoho kusu (cena minus variabilní náklady). Výsledek je počet kusů, který akce musí prodat. [doplň vlastní příklad]"],
+ ["Teorie","Co je 4C a co říká o vaší pekárně?","Pohled zákazníka: hodnota, náklady zákazníka, pohodlí, komunikace. Pekárna má vysokou hodnotu, ale nižší pohodlí (parkování, poloha). Komunikace musí dát důvod cestu podniknout."],
+ ["Teorie","Z jaké teorie jste vycházel?","Práce je aplikovaná, teorii explicitně nepojmenovává, ale odpovídá jí: SWOT, cílený marketing (STP), marketingový a komunikační mix, kupní rozhodovací proces a kontrola přes KPI (záložní slajd 13)."],
+ ["Citace","Proč chybí seznam zdrojů a přílohy?","Uznávám, že je to nedostatek, vidím ho i v posudku. Práce je aplikovaná a stojí na zkušenosti v provozu, interních datech a pozorování. Standardní zdroje, o které se opírám, mám připravené a rozumím jim. Do další verze bych seznam a přílohy doplnil."],
+ ["Data","Odkud máte čísla tržeb?","Z pekárny, kde pracuji: interní data o tržbách a vlastní pozorování. [doplň: z čeho přesně a za jaké období] Uvádím rozsahy, protože tržby kolísají. Není to audit, je to jednoduchá analýza dostupných dat."],
+ ["Data","Jak víte, že nárůst tržeb způsobila komunikace a ne sezóna?","Je to silná indicie, ne důkaz kauzality. Sezónnost, počasí a počet akcí jsem nemohl vyloučit. Proto návrh obsahuje měření: srovnání stejných období a akcí s teaserem a bez něj (záložní slajd 15)."],
+ ["Data","Je zkoumání objektivní, když tam pracujete?","Mám přístup k reálným datům a provozu, ale riziko zaujetí přiznávám. Proto jsem použil více zdrojů informací a navrhl měřitelné ukazatele, které ověří návrh nezávisle na mém názoru."],
+ ["Data","Lze výsledky zobecnit?","Jde o případovou studii jednoho podniku. Zobecnit lze princip: provozovna mimo centrum může nevýhodu polohy kompenzovat řízenou komunikací. Konkrétní čísla platí jen pro tuto pekárnu."],
+ ["Marketing","Proč Instagram a ne jiný kanál?","Je to jediný kanál, který pekárna už používá, takže návrh nevyžaduje nové náklady. Je vizuální, hodí se na jídlo a akce a osloví i mladší publikum. Web je doplňkový."],
+ ["Marketing","Jak oslovíte mladší zákazníky?","Pravidelný obsah (reels, stories), tematické sobotní eventy s očekáváním, sdílení obsahu od zákazníků a odpovídání na komentáře."],
+ ["Marketing","Čím se odlišujete od konkurence?","Konkurence vyhrává viditelností, prostorem, šíří nabídky a parkováním. Pekárna se odliší značkou, kvalitou řemeslného produktu a akcemi, které dávají důvod přijet i z dalšího okolí."],
+ ["Ekonomika","Kolik vás návrh bude stát?","Využívá existující kanály, hlavní náklad je čas na obsah, tisk plakátů a případná placená propagace. [doplň odhad v Kč]"],
+ ["Ekonomika","Vyplatí se to?","Přírůstek tržeb z úspěšné akce je zhruba 4–7 tisíc oproti běžnému víkendu. Akce se vyplatí, pokud přírůstek tržeb krát hrubá marže převýší náklady na komunikaci. [doplň marži a náklady]"],
+ ["Ekonomika","Tržby rostly o 25–35 %. A co zisk?","Tržba není zisk: s tržbami rostou i náklady na suroviny a personál. Práce pracuje s tržbami jako nejlepším dostupným ukazatelem dopadu komunikace."],
+ ["Management","Kdo bude systém provádět?","[doplň: kdo dělá komunikaci dnes] Systém je záměrně jednoduchý (šablony, obsahový rámec, pět kroků akce), aby ho zvládl běžný provoz bez organizačních změn."],
+ ["Management","Jak zajistíte, že se systém bude dodržovat?","Disciplína je hlavní riziko. Pomáhají šablony, pevná struktura akce a měsíční vyhodnocení KPI."],
+ ["Management","Jak by implementace probíhala?","Nejdřív jádro značky a šablony, pak obsahový plán a offline prvky, pak první sobotní event podle pěti fází, nakonec vyhodnotit KPI a upravit postup."],
+ ["Obecné","Co práce nedokáže a co byste udělal jinak?","Chybí důkladnější data, seznam zdrojů a přílohy a systém nebyl plně ověřen v provozu. Pokračoval bych sběrem přesnějších dat a ověřením návrhu na několika akcích s měřením KPI."],
+ ["Obecné","V čem je práce přínosná pro praxi?","Nejdřív diagnostikuje, proč akce kolísají (3 z 10 úspěšné), a pak navrhuje konkrétní pravidla: obsahový rámec, pětikrokový postup akce, offline propojení a ukazatele."],
+ ["Obecné","E-mail marketing a věrnostní program: co GDPR?","Osobní údaje lze sbírat jen se souhlasem a s jasným účelem. Práce je doporučuje jako další rozvoj a při zavedení by se GDPR muselo řešit."]
+];
+
+const SLIDES = [
+ ["Titul","20 s","Dobrý den, jmenuji se Matěj Kuracina a představím praktickou práci Návrh marketingového komunikačního systému pro lokální pekárnu. Jde o pekárnu, ve které pracuji, takže vycházím z reálného provozu.",""],
+ ["Dobrý produkt, slabá viditelnost","1 min","Pekárna má kvalitní produkt, dostupné ceny, mladý personál a tematické akce. Potýká se ale s polohou mimo centrum, parkováním a tím, že chodí hlavně stálí zákazníci. Výsledky akcí kolísají. Hlavní problém: pekárna není limitována produktem, ale chybějícím systematickým komunikačním systémem.","Z pohledu marketingového mixu má pekárna silný produkt a cenu, ale slabé místo. Místo změnit nejde, takže růst hledám v propagaci, tedy v komunikačním mixu."],
+ ["Cíl a postup","45 s","Cílem bylo navrhnout jednoduchý a udržitelný systém. Tři fáze: analýza, návrh, měření efektivity. Data z roční zkušenosti v podniku: pozorování, interní informace, jednoduchá analýza tržeb a rozhovory. Součástí je SWOT.",""],
+ ["Zákazníci a konkurence","1 min","Zákazníci jsou hlavně místní 40–80 let a maminky. Mladí chodí nárazově, ale mají největší potenciál a nikdo je systematicky neoslovuje. Food Story, řeznictví a Tesco vyhrávají viditelností a pohodlím, proto se pekárna musí odlišit komunikací.","Segmentoval jsem podle demografických kritérií a kritérií užití, tedy frekvence nákupu. Trh odpovídá monopolistické konkurenci, kde se firmy odlišují diferencovaným produktem a značkou."],
+ ["Tržby","1 min 15 s","Běžný víkend 5–6 tisíc, úspěšná akce 10–12 tisíc, neúspěšná kolem 3 tisíc. Odhadem jen 3 z 10 akcí výrazně nadprůměrné. Bez systematické komunikace 90–100 tisíc měsíčně, se systematičtější 120–130 tisíc, zhruba +25–35 %. Jde o rozsahy z interních dat.","Z pohledu kupního rozhodovacího procesu se zákazník o akci nedozvěděl včas, takže nešel ani do fáze hledání informací."],
+ ["Instagram","45 s","Jediný aktivní online kanál: ~4 stories týdně, 1–2 příspěvky, 2 reels měsíčně. Problém není rozsah, ale chybějící obsahový plán, jednotný styl a pozdní komunikace akcí. Návrh: 3–5 stories, 2–3 příspěvky týdně, 2–4 reels měsíčně.",""],
+ ["Tři vrstvy návrhu","1 min 15 s","Jádro značky: pozicování, přátelský tone of voice, vizuální identita a šablony. Online: Instagram se čtyřmi pilíři (produkty, akce, zákulisí, komunita) a web s akcemi a rezervacemi. Offline: výloha, plakáty, QR kódy, personál.","Jádro značky je positioning jako poslední krok cíleného marketingu. Online a offline vrstva tvoří komunikační mix: přímý a on-line marketing, osobní prodej personálu a BTL komunikace ve výloze."],
+ ["Sobotní eventy","1 min","Akce jako pravidelné sobotní eventy s pěti kroky: teaser 7–14 dní předem, hlavní promo 3–5 dní předem, připomenutí den před a v den akce, komunikace během akce a obsah po akci.","Sobotní eventy jsou event marketing, nástroj PR, kombinovaný s podporou prodeje. Pět fází kopíruje adopční proces: povědomí, zájem, pokus, přijetí."],
+ ["Ukázky z praxe","30 s","Ukaž fyzický plakát a fotky. Výloha, plakát i Instagram mají stejný vizuální styl, takže si zákazník značku zapamatuje.",""],
+ ["Měření a rizika","45 s","Čtyři ukazatele: tržby z akcí (cíl 9–10 tisíc), +20–30 % sledujících, engagement a rezervace, vyhodnocení měsíčně. Hlavní riziko je disciplína, proto je systém jednoduchý a stojí na šablonách.","Měsíční vyhodnocení je manažerská funkce kontrola, konkrétně řádná následná kontrola. Vím, že ne všechny KPI jsou zatím SMART, a vím, jak to opravit."],
+ ["Závěr","45 s","Hlavní bariérou není produkt, ale chybějící systematická komunikace. Navrhl jsem jednoduchý ucelený systém. Pro další rozvoj doporučuji AI nástroje pro obsah, e-mail marketing a věrnostní program. Děkuji za pozornost.",""]
+];
+
+const PLAN = [
+ ["Týden 1: marketing – jádro",["Segmentace trhu, cílený marketing, STP (otázky 17a, 17b, 18a)","Intuitivní vs. systematický přístup k segmentaci (18a)","Spotřební chování, kupní rozhodovací proces, adopční proces (16a, 16b)","Marketingový mix 4P, 4C a další P (18b)","Vysvětli nahlas STP na pekárně za 1 minutu"]],
+ ["Týden 2: komunikace a ekonomika",["Komunikační mix: reklama, podpora prodeje, osobní prodej, PR, přímý marketing, ATL/BTL (20b)","Výrobkový mix, výrobková média, životní cyklus (19a)","Cenový mix a tvorba ceny (19b)","Distribuční mix: přímá cesta (20a)","EKO: monopolistická konkurence (3b), cíle a okolí podniku (11a), náklady a bod zvratu (14a, 15b)","Spočítej bod zvratu jedné akce s vlastními čísly"]],
+ ["Týden 3: management a strategie",["Strategický management, poslání, vize (10a, 10b)","SMART cíle: přepiš svoje KPI (2a, 10b)","Manažerské funkce: plánování, organizování, vedení, kontrola (1b, 2a, 6a)","Kontrola: předběžná, průběžná, následná (6a)","Delegování a motivace, Maslow, Herzberg (7a, 8a)","Všechny kartičky nahlas bez koukání"]],
+ ["Poslední blok: trénink",["Celá obhajoba nahlas na čas, aspoň 3×","Nechat se vyslýchat (režim Zkoušení)","Doplnit všechna místa [doplň]","Den před: kartičky ★, scénář a spánek"]]
+];
+
+/* ---------- TABS ---------- */
+const tabs=[...document.querySelectorAll('nav [role=tab]')];
+function openTab(id){
+  tabs.forEach(t=>t.setAttribute('aria-selected', String(t.dataset.tab===id)));
+  document.querySelectorAll('[role=tabpanel]').forEach(p=>p.hidden = p.id!=='p-'+id);
+  S.set('tab',id);
+}
+tabs.forEach(t=>t.addEventListener('click',()=>openTab(t.dataset.tab)));
+const start = (location.hash||'').slice(1);
+openTab(['karty','zkouseni','scenar','plan','pojistky'].includes(start)?start:S.get('tab','karty'));
+
+/* ---------- KARTIČKY ---------- */
+let known = new Set(S.get('known',[]));
+let kfilter = 'Vše', korder = TERMS.map((_,i)=>i), ki = 0;
+const KF = ['Vše','★ Na jisto','Marketing','Management','Ekonomika','Neumím'];
+const kf = document.getElementById('kf');
+KF.forEach(f=>{const b=document.createElement('button');b.className='chip';b.textContent=f;b.setAttribute('aria-pressed',f===kfilter);b.onclick=()=>{kfilter=f;[...kf.children].forEach(c=>c.setAttribute('aria-pressed',c.textContent===f));buildK();};kf.appendChild(b);});
+function list(){ return korder.filter(i=>{const t=TERMS[i];
+  if(kfilter==='Vše')return true; if(kfilter==='★ Na jisto')return t[2]; if(kfilter==='Neumím')return !known.has(t[1]); return t[0]===kfilter;}); }
+const flip=document.getElementById('flip');
+function buildK(){ ki=0; showK(); }
+function showK(){
+  const L=list(); flip.classList.remove('on');
+  document.getElementById('kprog').style.width=(known.size/TERMS.length*100)+'%';
+  if(!L.length){document.getElementById('kterm').textContent='Všechno v tomhle výběru umíš.';document.getElementById('kcat').textContent='';document.getElementById('kmeta').textContent='Umíš '+known.size+' z '+TERMS.length+' pojmů';return;}
+  ki=(ki+L.length)%L.length; const t=TERMS[L[ki]];
+  document.getElementById('kcat').textContent=t[0]+(known.has(t[1])?' · umíš':'');
+  document.getElementById('kterm').innerHTML=(t[2]?'<span class="star">★ </span>':'')+t[1];
+  document.getElementById('kdef').textContent=t[3];
+  document.getElementById('kwhere').textContent=t[4];
+  document.getElementById('kknow').textContent=known.has(t[1])?'Vrátit mezi neumím':'Umím';
+  document.getElementById('kmeta').textContent='Kartička '+(ki+1)+' / '+L.length+' · umíš '+known.size+' z '+TERMS.length;
+}
+flip.onclick=e=>{ if(flip.classList.contains('on') && e.target.closest('.back')) return; flip.classList.toggle('on'); };
+flip.onkeydown=e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();flip.classList.toggle('on');}};
+document.getElementById('knext').onclick=()=>{ki++;showK();};
+document.getElementById('kprev').onclick=()=>{ki--;showK();};
+document.getElementById('kshuf').onclick=()=>{korder.sort(()=>Math.random()-.5);buildK();};
+document.getElementById('kknow').onclick=()=>{const L=list();if(!L.length)return;const n=TERMS[L[ki]][1];
+  if(known.has(n))known.delete(n);else{known.add(n);} S.set('known',[...known]); if(kfilter!=='Neumím')ki++; showK();};
+buildK();
+
+/* ---------- ZKOUŠENÍ ---------- */
+let zfilter='Vše', zi=0, zorder=[], score=S.get('score',{ok:0,no:0});
+const ZF=['Vše','Teorie','Citace','Data','Marketing','Ekonomika','Management','Obecné'];
+const zf=document.getElementById('zf');
+ZF.forEach(f=>{const b=document.createElement('button');b.className='chip';b.textContent=f;b.setAttribute('aria-pressed',f===zfilter);b.onclick=()=>{zfilter=f;[...zf.children].forEach(c=>c.setAttribute('aria-pressed',c.textContent===f));buildZ();};zf.appendChild(b);});
+function buildZ(){ zorder=QS.map((_,i)=>i).filter(i=>zfilter==='Vše'||QS[i][0]===zfilter).sort(()=>Math.random()-.5); zi=0; showZ(); }
+function showZ(){ const q=QS[zorder[zi%zorder.length]];
+  document.getElementById('zcat').textContent=q[0];
+  document.getElementById('zq').textContent=q[1];
+  const a=document.getElementById('za'); a.textContent=q[2]; a.hidden=true;
+  document.getElementById('zshow').hidden=false; document.getElementById('zok').hidden=true; document.getElementById('zno').hidden=true;
+  document.getElementById('zmeta').textContent='Otázka '+((zi%zorder.length)+1)+' / '+zorder.length;
+  document.getElementById('zstat').textContent='Celkem: zvládl bych '+score.ok+' × · ještě ne '+score.no+' ×. Nejdřív odpověz nahlas, pak odkryj.';
+}
+document.getElementById('zshow').onclick=()=>{document.getElementById('za').hidden=false;document.getElementById('zshow').hidden=true;document.getElementById('zok').hidden=false;document.getElementById('zno').hidden=false;};
+document.getElementById('zok').onclick=()=>{score.ok++;S.set('score',score);zi++;showZ();};
+document.getElementById('zno').onclick=()=>{score.no++;S.set('score',score);zorder.push(zorder[zi%zorder.length]);zi++;showZ();};
+buildZ();
+
+/* ---------- SCÉNÁŘ ---------- */
+let si=S.get('slide',0);
+function showS(){ si=(si+SLIDES.length)%SLIDES.length; const s=SLIDES[si];
+  document.getElementById('sno').textContent=String(si+1).padStart(2,'0');
+  document.getElementById('stitle').textContent=s[0];
+  document.getElementById('stime').textContent=s[1];
+  document.getElementById('stext').textContent=s[2];
+  const h=document.getElementById('shook'); h.hidden=!s[3]; h.innerHTML=s[3]?'<span class="lbl">Odborný háček</span><div>„'+s[3]+'“</div>':'';
+  S.set('slide',si);
+}
+document.getElementById('snext').onclick=()=>{si++;showS();};
+document.getElementById('sprev').onclick=()=>{si--;showS();};
+document.addEventListener('keydown',e=>{ if(document.getElementById('p-scenar').hidden)return;
+  if(e.key==='ArrowRight'){si++;showS();} if(e.key==='ArrowLeft'){si--;showS();} });
+showS();
+
+/* ---------- PLÁN ---------- */
+let done=new Set(S.get('done',[]));
+const W=document.getElementById('weeks'); let total=0;
+PLAN.forEach((w,wi)=>{ const c=document.createElement('div'); c.className='card week';
+  const h=document.createElement('h3'); h.textContent=w[0]; c.appendChild(h);
+  w[1].forEach((t,ti)=>{ total++; const id='p'+wi+'-'+ti; const r=document.createElement('div'); r.className='task'+(done.has(id)?' done':'');
+    const i=document.createElement('input'); i.type='checkbox'; i.id=id; i.checked=done.has(id);
+    const l=document.createElement('label'); l.htmlFor=id; l.textContent=t;
+    i.onchange=()=>{ i.checked?done.add(id):done.delete(id); r.classList.toggle('done',i.checked); S.set('done',[...done]); pm(); };
+    r.append(i,l); c.appendChild(r); });
+  W.appendChild(c); });
+function pm(){ document.getElementById('pmeta').textContent=done.size+' / '+total+' hotovo'; document.getElementById('pprog').style.width=(done.size/total*100)+'%'; }
+pm();
+</script>
+
+</body></html>
